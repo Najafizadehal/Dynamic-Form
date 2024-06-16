@@ -1,8 +1,7 @@
-package com.saman.Form.models;
+package com.saman.Form.form.models;
 
 import lombok.Data;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 @Data
