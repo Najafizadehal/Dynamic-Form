@@ -1,30 +1,33 @@
 package com.saman.Form.form.models.Entity;
 
-import jakarta.persistence.Entity;
+import jakarta.persistence.*;
 import lombok.Data;
-
-import javax.persistence.CascadeType;
-import javax.persistence.OneToMany;
+import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Data
+@NoArgsConstructor
 public class EvaluationCriteria {
-
-    private long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String name;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<EvaluationField> fields = new ArrayList<>();
+    @ManyToOne
+    @JoinColumn(name = "evaluation_id")
+    private Evaluation evaluation;
 
-    public EvaluationCriteria() {}
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "evaluationCriteria")
+    private List<EvaluationField> fields = new ArrayList<>();
 
     public EvaluationCriteria(String name) {
         this.name = name;
     }
 
     public void addField(EvaluationField field) {
-        fields.add(field);
+        field.setEvaluationCriteria(this);
+        this.fields.add(field);
     }
 }

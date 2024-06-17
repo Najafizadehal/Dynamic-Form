@@ -21,8 +21,4 @@ public class FormController {
         this.formService = formService;
     }
 
-    public ResponseEntity<MyApiResponse> createForm(@RequestBody FormCreateRequest formCreateRequest){
-        logger.info("create new form with title: {}", formCreateRequest.getForm().keySet());
-        return formService.createForm(formCreateRequest);
-    }
 }

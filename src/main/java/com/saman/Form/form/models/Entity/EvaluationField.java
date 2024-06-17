@@ -1,14 +1,12 @@
 package com.saman.Form.form.models.Entity;
 
-import jakarta.persistence.Entity;
+import jakarta.persistence.*;
 import lombok.Data;
-
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Data
+@NoArgsConstructor
 public class EvaluationField {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,11 +14,12 @@ public class EvaluationField {
     private String name;
     private int score;
 
-    public EvaluationField() {}
+    @ManyToOne
+    @JoinColumn(name = "evaluation_criteria_id")
+    private EvaluationCriteria evaluationCriteria;
 
     public EvaluationField(String name, int score) {
         this.name = name;
         this.score = score;
     }
-
 }
