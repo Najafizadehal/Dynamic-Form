@@ -81,12 +81,13 @@ public class EvaluationServiceImpl implements EvaluationService {
                     })
                     .mapToInt(EvaluationField::getScore)
                     .max()
-                    .orElse(0);
+                    .orElse(0); // برگرداندن 0 اگر معیار مطابقت ندارد
 
             results.put(key, highestScore);
         }
 
         return results;
     }
+
 }
 
