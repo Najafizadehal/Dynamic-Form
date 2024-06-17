@@ -70,17 +70,20 @@ public class EvaluationServiceImpl implements EvaluationService {
             String key = entry.getKey();
             int value = entry.getValue();
 
-            Optional<EvaluationField> matchingField = criteria.getFields().stream().filter(field -> {
-                String fieldName = field.getName().toLowerCase();
-                if (fieldName.contains("less than")) {
-                    int limit = Integer.parseInt(fieldName.replaceAll("[^0-9]", ""));
-                    return value < limit;
-                }
-                return false;
-            }).findFirst();
+            int highestScore = criteria.getFields().stream()
+                    .filter(field -> {
+                        String fieldName = field.getName();
+                        if (fieldName != null && fieldName.toLowerCase().contains("less than")) {
+                            int limit = Integer.parseInt(fieldName.replaceAll("[^0-9]", ""));
+                            return value < limit;
+                        }
+                        return false;
+                    })
+                    .mapToInt(EvaluationField::getScore)
+                    .max()
+                    .orElse(0); // برگرداندن 0 اگر معیار مطابقت ندارد
 
-            int score = matchingField.map(EvaluationField::getScore).orElse(0);
-            results.put(key, score);
+            results.put(key, highestScore);
         }
 
         return results;
