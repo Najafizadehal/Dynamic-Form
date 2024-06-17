@@ -10,7 +10,9 @@ import com.saman.Form.utils.FormUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -30,7 +32,8 @@ public class EvaluationServiceImpl implements EvaluationService {
     @Override
     public Evaluation addEvaluation(String name) {
         Evaluation evaluation = new Evaluation(name);
-        return evaluationRepository.save(evaluation);    }
+        return evaluationRepository.save(evaluation);
+    }
 
     @Override
     public EvaluationCriteria addCriteriaToEvaluation(Long evaluationId, String criteriaName) {
@@ -38,7 +41,8 @@ public class EvaluationServiceImpl implements EvaluationService {
         EvaluationCriteria criteria = new EvaluationCriteria(criteriaName);
         evaluation.addCriteria(criteria);
         evaluationRepository.save(evaluation);
-        return criteria;    }
+        return criteria;
+    }
 
     @Override
     public EvaluationField addFieldToCriteria(Long evaluationId, Long criteriaId, String fieldName, int score) {
@@ -47,7 +51,8 @@ public class EvaluationServiceImpl implements EvaluationService {
         EvaluationField field = new EvaluationField(fieldName, score);
         criteria.addField(field);
         evaluationRepository.save(evaluation);
-        return field;    }
+        return field;
+    }
 
     @Override
     public List<Evaluation> getAllEvaluations() {
@@ -55,20 +60,30 @@ public class EvaluationServiceImpl implements EvaluationService {
     }
 
     @Override
-    public int evaluateInput(Long evaluationId, Long criteriaId, int input) {
+    public Map<String, Integer> evaluateInputs(Long evaluationId, Long criteriaId, Map<String, Integer> inputs) {
         Evaluation evaluation = evaluationRepository.findById(evaluationId).orElseThrow(() -> new RuntimeException("Evaluation not found"));
         EvaluationCriteria criteria = evaluation.getCriteria().stream().filter(c -> c.getId().equals(criteriaId)).findFirst().orElseThrow(() -> new RuntimeException("Criteria not found"));
 
-        // پیدا کردن فیلدی که ورودی به آن می‌خورد
-        Optional<EvaluationField> matchingField = criteria.getFields().stream().filter(field -> {
-            String fieldName = field.getName().toLowerCase();
-            if (fieldName.contains("less than")) {
-                int limit = Integer.parseInt(fieldName.replaceAll("[^0-9]", ""));
-                return input < limit;
-            }
-            return false;
-        }).findFirst();
+        Map<String, Integer> results = new HashMap<>();
 
-        return matchingField.map(EvaluationField::getScore).orElseThrow(() -> new RuntimeException("No matching criteria found for input"));
+        for (Map.Entry<String, Integer> entry : inputs.entrySet()) {
+            String key = entry.getKey();
+            int value = entry.getValue();
+
+            Optional<EvaluationField> matchingField = criteria.getFields().stream().filter(field -> {
+                String fieldName = field.getName().toLowerCase();
+                if (fieldName.contains("less than")) {
+                    int limit = Integer.parseInt(fieldName.replaceAll("[^0-9]", ""));
+                    return value < limit;
+                }
+                return false;
+            }).findFirst();
+
+            int score = matchingField.map(EvaluationField::getScore).orElse(0);
+            results.put(key, score);
+        }
+
+        return results;
     }
 }
+

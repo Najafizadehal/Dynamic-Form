@@ -8,6 +8,7 @@ import com.saman.Form.shared.MyApiResponse;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.Map;
 
 public interface EvaluationService {
 
@@ -15,6 +16,6 @@ public interface EvaluationService {
     EvaluationCriteria addCriteriaToEvaluation(Long evaluationId, String criteriaName);
     EvaluationField addFieldToCriteria(Long evaluationId, Long criteriaId, String fieldName, int score);
     List<Evaluation> getAllEvaluations();
-    int evaluateInput(Long evaluationId, Long criteriaId, int input);
+    Map<String, Integer> evaluateInputs(Long evaluationId, Long criteriaId, Map<String, Integer> inputs);
 
 }
