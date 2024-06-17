@@ -81,7 +81,7 @@ public class EvaluationServiceImpl implements EvaluationService {
                     })
                     .mapToInt(EvaluationField::getScore)
                     .max()
-                    .orElse(0); // برگرداندن 0 اگر معیار مطابقت ندارد
+                    .orElse(0);
 
             results.put(key, highestScore);
         }
