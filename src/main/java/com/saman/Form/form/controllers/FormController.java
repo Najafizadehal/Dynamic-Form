@@ -3,6 +3,7 @@ package com.saman.Form.form.controllers;
 import com.saman.Form.form.models.Entity.Evaluation;
 import com.saman.Form.form.models.Entity.EvaluationCriteria;
 import com.saman.Form.form.models.Entity.EvaluationField;
+import com.saman.Form.form.models.request.FieldRequest;
 import com.saman.Form.form.models.request.FormCreateRequest;
 import com.saman.Form.form.services.EvaluationService;
 import com.saman.Form.shared.MyApiResponse;
@@ -35,8 +36,8 @@ public class FormController {
     }
 
     @PostMapping("/{evaluationId}/criteria/{criteriaId}/fields")
-    public ResponseEntity<String> addFieldToCriteria(@PathVariable Long evaluationId, @PathVariable Long criteriaId, @RequestBody String fieldName, @RequestParam int score) {
-        EvaluationField field = evaluationService.addFieldToCriteria(evaluationId, criteriaId, fieldName, score);
+    public ResponseEntity<String> addFieldToCriteria(@PathVariable Long evaluationId, @PathVariable Long criteriaId, @RequestBody FieldRequest fieldRequest) {
+        EvaluationField field = evaluationService.addFieldToCriteria(evaluationId, criteriaId, fieldRequest.getFieldname(), fieldRequest.getScore());
         return ResponseEntity.ok("field created");
     }
 
@@ -47,7 +48,7 @@ public class FormController {
     }
 
     @PostMapping("/{evaluationId}/criteria/{criteriaId}/evaluate")
-    public ResponseEntity<Integer> evaluateInput(@PathVariable Long evaluationId, @PathVariable Long criteriaId, @RequestParam String input) {
+    public ResponseEntity<Integer> evaluateInput(@PathVariable Long evaluationId, @PathVariable Long criteriaId, @RequestParam int input) {
         int score = evaluationService.evaluateInput(evaluationId, criteriaId, input);
         return ResponseEntity.ok(score);
     }

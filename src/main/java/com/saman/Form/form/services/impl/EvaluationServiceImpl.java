@@ -55,11 +55,19 @@ public class EvaluationServiceImpl implements EvaluationService {
     }
 
     @Override
-    public int evaluateInput(Long evaluationId, Long criteriaId, String input) {
+    public int evaluateInput(Long evaluationId, Long criteriaId, int input) {
         Evaluation evaluation = evaluationRepository.findById(evaluationId).orElseThrow(() -> new RuntimeException("Evaluation not found"));
         EvaluationCriteria criteria = evaluation.getCriteria().stream().filter(c -> c.getId().equals(criteriaId)).findFirst().orElseThrow(() -> new RuntimeException("Criteria not found"));
 
-        Optional<EvaluationField> matchingField = criteria.getFields().stream().filter(field -> input.matches(field.getName())).findFirst();
+        // پیدا کردن فیلدی که ورودی به آن می‌خورد
+        Optional<EvaluationField> matchingField = criteria.getFields().stream().filter(field -> {
+            String fieldName = field.getName().toLowerCase();
+            if (fieldName.contains("less than")) {
+                int limit = Integer.parseInt(fieldName.replaceAll("[^0-9]", ""));
+                return input < limit;
+            }
+            return false;
+        }).findFirst();
 
         return matchingField.map(EvaluationField::getScore).orElseThrow(() -> new RuntimeException("No matching criteria found for input"));
     }
