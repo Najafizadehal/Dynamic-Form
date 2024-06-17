@@ -45,4 +45,10 @@ public class FormController {
         List<Evaluation> evaluations = evaluationService.getAllEvaluations();
         return ResponseEntity.ok(evaluations);
     }
+
+    @PostMapping("/{evaluationId}/criteria/{criteriaId}/evaluate")
+    public ResponseEntity<Integer> evaluateInput(@PathVariable Long evaluationId, @PathVariable Long criteriaId, @RequestParam String input) {
+        int score = evaluationService.evaluateInput(evaluationId, criteriaId, input);
+        return ResponseEntity.ok(score);
+    }
 }

@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class EvaluationServiceImpl implements EvaluationService {
@@ -51,5 +52,15 @@ public class EvaluationServiceImpl implements EvaluationService {
     @Override
     public List<Evaluation> getAllEvaluations() {
         return evaluationRepository.findAll();
+    }
+
+    @Override
+    public int evaluateInput(Long evaluationId, Long criteriaId, String input) {
+        Evaluation evaluation = evaluationRepository.findById(evaluationId).orElseThrow(() -> new RuntimeException("Evaluation not found"));
+        EvaluationCriteria criteria = evaluation.getCriteria().stream().filter(c -> c.getId().equals(criteriaId)).findFirst().orElseThrow(() -> new RuntimeException("Criteria not found"));
+
+        Optional<EvaluationField> matchingField = criteria.getFields().stream().filter(field -> input.matches(field.getName())).findFirst();
+
+        return matchingField.map(EvaluationField::getScore).orElseThrow(() -> new RuntimeException("No matching criteria found for input"));
     }
 }
