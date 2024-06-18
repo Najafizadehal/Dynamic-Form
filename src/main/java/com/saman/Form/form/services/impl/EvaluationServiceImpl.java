@@ -6,8 +6,10 @@ import com.saman.Form.form.models.Entity.EvaluationField;
 import com.saman.Form.form.repository.EvaluationCriteriaRepository;
 import com.saman.Form.form.repository.EvaluationRepository;
 import com.saman.Form.form.services.EvaluationService;
+import com.saman.Form.shared.FormException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -47,12 +49,16 @@ public class EvaluationServiceImpl implements EvaluationService {
 
     @Override
     public List<Evaluation> getAllEvaluations() {
+        List<Evaluation> evaluations = evaluationRepository.findAll();
+        if (evaluations.isEmpty()){
+            throw new FormException("Any Evaluation not found", HttpStatus.NOT_FOUND);
+        }
         return evaluationRepository.findAll();
     }
 
     @Override
     public Map<String, Map<String, Integer>> evaluateInputs(Long evaluationId, Map<String, Map<String, Integer>> criteriaInputs) {
-        Evaluation evaluation = evaluationRepository.findById(evaluationId).orElseThrow(() -> new RuntimeException("Evaluation not found"));
+        Evaluation evaluation = evaluationRepository.findById(evaluationId).orElseThrow(() -> new FormException("Evaluation not found", HttpStatus.NOT_FOUND));
         Map<String, Map<String, Integer>> criteriaScores = new HashMap<>();
 
         for (Map.Entry<String, Map<String, Integer>> criteriaEntry : criteriaInputs.entrySet()) {
@@ -63,7 +69,7 @@ public class EvaluationServiceImpl implements EvaluationService {
             EvaluationCriteria criteria = evaluation.getCriteria().stream()
                     .filter(c -> c.getId().equals(criteriaId))
                     .findFirst()
-                    .orElseThrow(() -> new RuntimeException("Criteria not found: " + criteriaId));
+                    .orElseThrow(() -> new FormException("Criteria not found: " + criteriaId, HttpStatus.NOT_FOUND));
 
             for (Map.Entry<String, Integer> inputEntry : inputs.entrySet()) {
                 String key = inputEntry.getKey();
