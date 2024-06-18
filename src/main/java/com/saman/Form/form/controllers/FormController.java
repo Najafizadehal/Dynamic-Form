@@ -3,11 +3,8 @@ package com.saman.Form.form.controllers;
 import com.saman.Form.form.models.Entity.Evaluation;
 import com.saman.Form.form.models.Entity.EvaluationCriteria;
 import com.saman.Form.form.models.Entity.EvaluationField;
-import com.saman.Form.form.models.request.FieldRequest;
-import com.saman.Form.form.models.request.FormCreateRequest;
-import com.saman.Form.form.models.request.Input;
+import com.saman.Form.form.models.request.*;
 import com.saman.Form.form.services.EvaluationService;
-import com.saman.Form.shared.MyApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +17,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/evaluations")
 public class FormController {
-    Logger logger = LoggerFactory.getLogger(FormController.class);
 
     @Autowired
     private EvaluationService evaluationService;
@@ -49,9 +45,11 @@ public class FormController {
         return ResponseEntity.ok(evaluations);
     }
 
-    @PostMapping("/{evaluationId}/criteria/{criteriaId}/evaluate")
-    public ResponseEntity<Map<String, Integer>> evaluateInputs(@PathVariable Long evaluationId, @PathVariable Long criteriaId, @RequestBody Map<String, Integer> inputs) {
-        Map<String, Integer> scores = evaluationService.evaluateInputs(evaluationId, criteriaId, inputs);
-        return ResponseEntity.ok(scores);
+    @PostMapping("/{evaluationId}/evaluate")
+    public ResponseEntity<EvaluationResponse> evaluateInputs(@PathVariable Long evaluationId, @RequestBody EvaluationRequest request) {
+        Map<String, Map<String, Integer>> scores = evaluationService.evaluateInputs(evaluationId, request.getCriteriaInputs());
+        EvaluationResponse response = new EvaluationResponse();
+        response.setCriteriaScores(scores);
+        return ResponseEntity.ok(response);
     }
 }
