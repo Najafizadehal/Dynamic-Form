@@ -32,15 +32,7 @@ public class EvaluateController {
         Evaluation evaluation = evaluationService.addEvaluation(name);
         return ResponseEntity.ok("evaluation created");
     }
-    @GetMapping("/aa")
-    public EvaluationCriteria findByName(@RequestBody CriteriaRequest criteriaRequest){
-        EvaluationCriteria evaluationCriteria = evaluationCriteriaRepository.findByName(criteriaRequest.getName());
-        System.out.println(evaluationCriteria);
-        if (evaluationCriteria == null){
-            return null;
-        }
-        return evaluationCriteria;
-    }
+
     @PostMapping("/{evaluationId}/criteria")
     public ResponseEntity<String> addCriteriaToEvaluation(@PathVariable Long evaluationId, @RequestBody String criteriaName) {
         EvaluationCriteria criteria = evaluationService.addCriteriaToEvaluation(evaluationId, criteriaName);
