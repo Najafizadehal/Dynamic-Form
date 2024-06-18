@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface EvaluationCriteriaRepository extends JpaRepository<EvaluationCriteria, Long> {
+
+    EvaluationCriteria findByName(String name);
 }

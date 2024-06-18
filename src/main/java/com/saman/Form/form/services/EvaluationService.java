@@ -17,5 +17,4 @@ public interface EvaluationService {
     EvaluationField addFieldToCriteria(Long evaluationId, Long criteriaId, String fieldName, int score);
     List<Evaluation> getAllEvaluations();
     Map<String, Map<String, Integer>> evaluateInputs(Long evaluationId, Map<String, Map<String, Integer>> criteriaInputs);
-
 }

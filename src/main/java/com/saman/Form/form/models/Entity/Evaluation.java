@@ -27,4 +27,11 @@ public class Evaluation {
         criteria.setEvaluation(this);
         this.criteria.add(criteria);
     }
+    @Override
+    public String toString() {
+        return "Evaluation{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

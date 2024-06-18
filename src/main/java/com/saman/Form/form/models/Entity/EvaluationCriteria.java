@@ -30,4 +30,13 @@ public class EvaluationCriteria {
         field.setEvaluationCriteria(this);
         this.fields.add(field);
     }
+
+    @Override
+    public String toString() {
+        return "EvaluationCriteria{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", fields=" + fields +
+                '}';
+    }
 }

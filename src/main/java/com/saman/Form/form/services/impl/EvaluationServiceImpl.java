@@ -7,6 +7,7 @@ import com.saman.Form.form.repository.EvaluationCriteriaRepository;
 import com.saman.Form.form.repository.EvaluationRepository;
 import com.saman.Form.form.services.EvaluationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -55,14 +56,14 @@ public class EvaluationServiceImpl implements EvaluationService {
         Map<String, Map<String, Integer>> criteriaScores = new HashMap<>();
 
         for (Map.Entry<String, Map<String, Integer>> criteriaEntry : criteriaInputs.entrySet()) {
-            String criteriaName = criteriaEntry.getKey();
+            Long criteriaId = Long.parseLong(criteriaEntry.getKey());
             Map<String, Integer> inputs = criteriaEntry.getValue();
             Map<String, Integer> results = new HashMap<>();
 
             EvaluationCriteria criteria = evaluation.getCriteria().stream()
-                    .filter(c -> c.getName().equalsIgnoreCase(criteriaName))
+                    .filter(c -> c.getId().equals(criteriaId))
                     .findFirst()
-                    .orElseThrow(() -> new RuntimeException("Criteria not found: " + criteriaName));
+                    .orElseThrow(() -> new RuntimeException("Criteria not found: " + criteriaId));
 
             for (Map.Entry<String, Integer> inputEntry : inputs.entrySet()) {
                 String key = inputEntry.getKey();
@@ -83,11 +84,12 @@ public class EvaluationServiceImpl implements EvaluationService {
 
                 results.put(key, highestScore);
             }
-            criteriaScores.put(criteriaName, results);
+            criteriaScores.put(criteriaEntry.getKey(), results);
         }
 
         return criteriaScores;
     }
+
 
 }
 

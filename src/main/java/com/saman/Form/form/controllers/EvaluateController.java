@@ -4,6 +4,7 @@ import com.saman.Form.form.models.Entity.Evaluation;
 import com.saman.Form.form.models.Entity.EvaluationCriteria;
 import com.saman.Form.form.models.Entity.EvaluationField;
 import com.saman.Form.form.models.request.*;
+import com.saman.Form.form.repository.EvaluationCriteriaRepository;
 import com.saman.Form.form.services.EvaluationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,21 +17,35 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/evaluations")
-public class FormController {
+public class EvaluateController {
+    Logger logger = LoggerFactory.getLogger(EvaluateController.class);
+
+    @Autowired
+    private EvaluationCriteriaRepository evaluationCriteriaRepository;
 
     @Autowired
     private EvaluationService evaluationService;
+
 
     @PostMapping
     public ResponseEntity<String> addEvaluation(@RequestBody String name) {
         Evaluation evaluation = evaluationService.addEvaluation(name);
         return ResponseEntity.ok("evaluation created");
     }
-
+    @GetMapping("/aa")
+    public EvaluationCriteria findByName(@RequestBody CriteriaRequest criteriaRequest){
+        EvaluationCriteria evaluationCriteria = evaluationCriteriaRepository.findByName(criteriaRequest.getName());
+        System.out.println(evaluationCriteria);
+        if (evaluationCriteria == null){
+            return null;
+        }
+        return evaluationCriteria;
+    }
     @PostMapping("/{evaluationId}/criteria")
     public ResponseEntity<String> addCriteriaToEvaluation(@PathVariable Long evaluationId, @RequestBody String criteriaName) {
         EvaluationCriteria criteria = evaluationService.addCriteriaToEvaluation(evaluationId, criteriaName);
-        return ResponseEntity.ok("criteria created");
+        logger.info("Criteria was created");
+        return ResponseEntity.ok("criteria was created");
     }
 
     @PostMapping("/{evaluationId}/criteria/{criteriaId}/fields")
