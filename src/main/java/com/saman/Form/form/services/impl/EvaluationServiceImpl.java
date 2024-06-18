@@ -56,7 +56,8 @@ public class EvaluationServiceImpl implements EvaluationService {
 
     @Override
     public Map<String, Map<String, Integer>> evaluateInputs(Long evaluationId, Map<String, Map<String, Integer>> criteriaInputs) {
-        Evaluation evaluation = evaluationRepository.findById(evaluationId).orElseThrow(() -> new FormException("Evaluation not found", HttpStatus.NOT_FOUND));
+        Evaluation evaluation = evaluationRepository.findById(evaluationId)
+                .orElseThrow(() -> new FormException("Evaluation not found", HttpStatus.NOT_FOUND));
         Map<String, Map<String, Integer>> criteriaScores = new HashMap<>();
 
         for (Map.Entry<String, Map<String, Integer>> criteriaEntry : criteriaInputs.entrySet()) {
@@ -76,9 +77,21 @@ public class EvaluationServiceImpl implements EvaluationService {
                 int highestScore = criteria.getFields().stream()
                         .filter(field -> {
                             String fieldName = field.getName();
-                            if (fieldName != null && fieldName.toLowerCase().contains("less than")) {
-                                int limit = Integer.parseInt(fieldName.replaceAll("[^0-9]", ""));
-                                return value < limit;
+                            if (fieldName != null) {
+                                if (fieldName.toLowerCase().contains("less than")) {
+                                    int limit = Integer.parseInt(fieldName.replaceAll("[^0-9]", ""));
+                                    return value < limit;
+                                } else if (fieldName.toLowerCase().contains("greater than")) {
+                                    int limit = Integer.parseInt(fieldName.replaceAll("[^0-9]", ""));
+                                    return value > limit;
+                                } else if (fieldName.toLowerCase().contains("between")) {
+                                    String[] limits = fieldName.toLowerCase().replaceAll("[^0-9 ]", "").trim().split("\\s+");
+                                    if (limits.length == 2) {
+                                        int lowerLimit = Integer.parseInt(limits[0].trim());
+                                        int upperLimit = Integer.parseInt(limits[1].trim());
+                                        return value >= lowerLimit && value <= upperLimit;
+                                    }
+                                }
                             }
                             return false;
                         })
@@ -93,6 +106,8 @@ public class EvaluationServiceImpl implements EvaluationService {
 
         return criteriaScores;
     }
+
+
 
 
 }
