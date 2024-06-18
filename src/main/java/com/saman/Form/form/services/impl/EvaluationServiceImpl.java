@@ -3,13 +3,11 @@ package com.saman.Form.form.services.impl;
 import com.saman.Form.form.models.Entity.Evaluation;
 import com.saman.Form.form.models.Entity.EvaluationCriteria;
 import com.saman.Form.form.models.Entity.EvaluationField;
-import com.saman.Form.form.repository.EvaluationCriteriaRepository;
 import com.saman.Form.form.repository.EvaluationRepository;
 import com.saman.Form.form.services.EvaluationService;
 import com.saman.Form.shared.FormException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
