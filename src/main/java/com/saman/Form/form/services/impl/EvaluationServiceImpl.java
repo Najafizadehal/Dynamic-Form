@@ -11,10 +11,8 @@ import com.saman.Form.shared.FormException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
 
 @Service
 public class EvaluationServiceImpl implements EvaluationService {
@@ -117,7 +115,13 @@ public class EvaluationServiceImpl implements EvaluationService {
         List<JsonResponseEvaluate> jsonResponseEvaluates = new ArrayList<>();
 
         for (CriteriaInput criteriaInput : criteriaInputs) {
-            Long criteriaId = Long.parseLong(criteriaInput.getCriteriaId());
+            Long criteriaId;
+            try {
+                criteriaId = Long.parseLong(criteriaInput.getCriteriaId());
+            } catch (NumberFormatException e) {
+                System.err.println("Invalid number format for criteriaId: " + criteriaInput.getCriteriaId());
+                continue;
+            }
             int value;
             try {
                 value = Integer.parseInt(criteriaInput.getValue());
@@ -126,10 +130,16 @@ public class EvaluationServiceImpl implements EvaluationService {
                 continue;
             }
 
-            EvaluationCriteria criteria = evaluation.getCriteria().stream()
+            Optional<EvaluationCriteria> optionalCriteria = evaluation.getCriteria().stream()
                     .filter(c -> c.getId().equals(criteriaId))
-                    .findFirst()
-                    .orElseThrow(() -> new FormException("Criteria not found: " + criteriaId, HttpStatus.NOT_FOUND));
+                    .findFirst();
+
+            if (!optionalCriteria.isPresent()) {
+                System.err.println("Criteria not found: " + criteriaId);
+                continue;
+            }
+
+            EvaluationCriteria criteria = optionalCriteria.get();
 
             int highestScore = criteria.getFields().stream()
                     .filter(field -> {
