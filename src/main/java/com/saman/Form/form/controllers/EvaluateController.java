@@ -5,7 +5,6 @@ import com.saman.Form.form.models.Entity.EvaluationCriteria;
 import com.saman.Form.form.models.Entity.EvaluationField;
 import com.saman.Form.form.models.request.*;
 import com.saman.Form.form.models.response.JsonResponseEvaluate;
-import com.saman.Form.form.models.response.EvaluationResponse;
 import com.saman.Form.form.repository.EvaluationCriteriaRepository;
 import com.saman.Form.form.services.EvaluationService;
 import org.slf4j.Logger;
@@ -54,13 +53,13 @@ public class EvaluateController {
         return ResponseEntity.ok(evaluations);
     }
 
-    @PostMapping("/{evaluationId}/evaluate")
-    public ResponseEntity<EvaluationResponse> evaluateInputs(@PathVariable Long evaluationId, @RequestBody EvaluationRequest request) {
-        Map<String, Map<String, Integer>> scores = evaluationService.evaluateInputs(evaluationId, request.getCriteriaInputs());
-        EvaluationResponse response = new EvaluationResponse();
-        response.setCriteriaScores(scores);
-        return ResponseEntity.ok(response);
-    }
+//    @PostMapping("/{evaluationId}/evaluate")
+//    public ResponseEntity<EvaluationResponse> evaluateInputs(@PathVariable Long evaluationId, @RequestBody EvaluationRequest request) {
+//        Map<String, Map<String, Integer>> scores = evaluationService.evaluateInputs(evaluationId, request.getCriteriaInputs());
+//        EvaluationResponse response = new EvaluationResponse();
+//        response.setCriteriaScores(scores);
+//        return ResponseEntity.ok(response);
+//    }
     @PostMapping("/{evaluationId}/evaluate1")
     public ResponseEntity<List<JsonResponseEvaluate>> evaluateInputs(@PathVariable Long evaluationId, @RequestBody List<CriteriaInput> request) {
         List<JsonResponseEvaluate> scores = evaluationService.evaluateInputs(evaluationId, request);

@@ -54,58 +54,58 @@ public class EvaluationServiceImpl implements EvaluationService {
         return evaluationRepository.findAll();
     }
 
-    @Override
-    public Map<String, Map<String, Integer>> evaluateInputs(Long evaluationId, Map<String, Map<String, Integer>> criteriaInputs) {
-        Evaluation evaluation = evaluationRepository.findById(evaluationId)
-                .orElseThrow(() -> new FormException("Evaluation not found", HttpStatus.NOT_FOUND));
-        Map<String, Map<String, Integer>> criteriaScores = new HashMap<>();
-
-        for (Map.Entry<String, Map<String, Integer>> criteriaEntry : criteriaInputs.entrySet()) {
-            Long criteriaId = Long.parseLong(criteriaEntry.getKey());
-            Map<String, Integer> inputs = criteriaEntry.getValue();
-            Map<String, Integer> results = new HashMap<>();
-
-            EvaluationCriteria criteria = evaluation.getCriteria().stream()
-                    .filter(c -> c.getId().equals(criteriaId))
-                    .findFirst()
-                    .orElseThrow(() -> new FormException("Criteria not found: " + criteriaId, HttpStatus.NOT_FOUND));
-
-            for (Map.Entry<String, Integer> inputEntry : inputs.entrySet()) {
-                String key = inputEntry.getKey();
-                int value = inputEntry.getValue();
-
-                int highestScore = criteria.getFields().stream()
-                        .filter(field -> {
-                            String fieldName = field.getName();
-                            if (fieldName != null) {
-                                if (fieldName.toLowerCase().contains("less than")) {
-                                    int limit = Integer.parseInt(fieldName.replaceAll("[^0-9]", ""));
-                                    return value < limit;
-                                } else if (fieldName.toLowerCase().contains("greater than")) {
-                                    int limit = Integer.parseInt(fieldName.replaceAll("[^0-9]", ""));
-                                    return value > limit;
-                                } else if (fieldName.toLowerCase().contains("between")) {
-                                    String[] limits = fieldName.toLowerCase().replaceAll("[^0-9 ]", "").trim().split("\\s+");
-                                    if (limits.length == 2) {
-                                        int lowerLimit = Integer.parseInt(limits[0].trim());
-                                        int upperLimit = Integer.parseInt(limits[1].trim());
-                                        return value >= lowerLimit && value <= upperLimit;
-                                    }
-                                }
-                            }
-                            return false;
-                        })
-                        .mapToInt(EvaluationField::getScore)
-                        .max()
-                        .orElse(0);
-
-                results.put(key, highestScore);
-            }
-            criteriaScores.put(criteriaEntry.getKey(), results);
-        }
-
-        return criteriaScores;
-    }
+//    @Override
+//    public Map<String, Map<String, Integer>> evaluateInputs(Long evaluationId, Map<String, Map<String, Integer>> criteriaInputs) {
+//        Evaluation evaluation = evaluationRepository.findById(evaluationId)
+//                .orElseThrow(() -> new FormException("Evaluation not found", HttpStatus.NOT_FOUND));
+//        Map<String, Map<String, Integer>> criteriaScores = new HashMap<>();
+//
+//        for (Map.Entry<String, Map<String, Integer>> criteriaEntry : criteriaInputs.entrySet()) {
+//            Long criteriaId = Long.parseLong(criteriaEntry.getKey());
+//            Map<String, Integer> inputs = criteriaEntry.getValue();
+//            Map<String, Integer> results = new HashMap<>();
+//
+//            EvaluationCriteria criteria = evaluation.getCriteria().stream()
+//                    .filter(c -> c.getId().equals(criteriaId))
+//                    .findFirst()
+//                    .orElseThrow(() -> new FormException("Criteria not found: " + criteriaId, HttpStatus.NOT_FOUND));
+//
+//            for (Map.Entry<String, Integer> inputEntry : inputs.entrySet()) {
+//                String key = inputEntry.getKey();
+//                int value = inputEntry.getValue();
+//
+//                int highestScore = criteria.getFields().stream()
+//                        .filter(field -> {
+//                            String fieldName = field.getName();
+//                            if (fieldName != null) {
+//                                if (fieldName.toLowerCase().contains("less than")) {
+//                                    int limit = Integer.parseInt(fieldName.replaceAll("[^0-9]", ""));
+//                                    return value < limit;
+//                                } else if (fieldName.toLowerCase().contains("greater than")) {
+//                                    int limit = Integer.parseInt(fieldName.replaceAll("[^0-9]", ""));
+//                                    return value > limit;
+//                                } else if (fieldName.toLowerCase().contains("between")) {
+//                                    String[] limits = fieldName.toLowerCase().replaceAll("[^0-9 ]", "").trim().split("\\s+");
+//                                    if (limits.length == 2) {
+//                                        int lowerLimit = Integer.parseInt(limits[0].trim());
+//                                        int upperLimit = Integer.parseInt(limits[1].trim());
+//                                        return value >= lowerLimit && value <= upperLimit;
+//                                    }
+//                                }
+//                            }
+//                            return false;
+//                        })
+//                        .mapToInt(EvaluationField::getScore)
+//                        .max()
+//                        .orElse(0);
+//
+//                results.put(key, highestScore);
+//            }
+//            criteriaScores.put(criteriaEntry.getKey(), results);
+//        }
+//
+//        return criteriaScores;
+//    }
 
     @Override
     public List<JsonResponseEvaluate> evaluateInputs(Long evaluationId, List<CriteriaInput> criteriaInputs) {
