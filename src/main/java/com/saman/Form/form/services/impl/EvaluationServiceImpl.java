@@ -11,7 +11,6 @@ import com.saman.Form.shared.FormException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -119,7 +118,13 @@ public class EvaluationServiceImpl implements EvaluationService {
 
         for (CriteriaInput criteriaInput : criteriaInputs) {
             Long criteriaId = Long.parseLong(criteriaInput.getCriteriaId());
-            int value = criteriaInput.getValue();
+            int value;
+            try {
+                value = Integer.parseInt(criteriaInput.getValue());
+            } catch (NumberFormatException e) {
+                System.err.println("Invalid number format for value: " + criteriaInput.getValue());
+                continue;
+            }
 
             EvaluationCriteria criteria = evaluation.getCriteria().stream()
                     .filter(c -> c.getId().equals(criteriaId))
