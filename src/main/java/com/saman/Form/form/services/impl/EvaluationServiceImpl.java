@@ -115,13 +115,8 @@ public class EvaluationServiceImpl implements EvaluationService {
         List<JsonResponseEvaluate> jsonResponseEvaluates = new ArrayList<>();
 
         for (CriteriaInput criteriaInput : criteriaInputs) {
-            Long criteriaId;
-            try {
-                criteriaId = Long.parseLong(criteriaInput.getCriteriaId());
-            } catch (NumberFormatException e) {
-                System.err.println("Invalid number format for criteriaId: " + criteriaInput.getCriteriaId());
-                continue;
-            }
+            Long criteriaId = Long.parseLong(criteriaInput.getCriteriaId());
+
             int value;
             try {
                 value = Integer.parseInt(criteriaInput.getValue());
