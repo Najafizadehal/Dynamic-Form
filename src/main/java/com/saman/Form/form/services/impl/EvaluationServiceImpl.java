@@ -109,13 +109,22 @@ public class EvaluationServiceImpl implements EvaluationService {
 
     @Override
     public List<JsonResponseEvaluate> evaluateInputs(Long evaluationId, List<CriteriaInput> criteriaInputs) {
-        Evaluation evaluation = evaluationRepository.findById(evaluationId)
-                .orElseThrow(() -> new FormException("Evaluation not found", HttpStatus.NOT_FOUND));
+        Optional<Evaluation> evaluation = evaluationRepository.findById(evaluationId);
+
+        if (evaluation.isEmpty()) {
+            throw new FormException("evaluation not found", HttpStatus.NOT_FOUND);
+        }
 
         List<JsonResponseEvaluate> jsonResponseEvaluates = new ArrayList<>();
 
         for (CriteriaInput criteriaInput : criteriaInputs) {
-            Long criteriaId = Long.parseLong(criteriaInput.getCriteriaId());
+            Long criteriaId;
+            try {
+                criteriaId = Long.parseLong(criteriaInput.getCriteriaId());
+            } catch (NumberFormatException e) {
+                System.err.println("Invalid number format for criteriaId: " + criteriaInput.getCriteriaId());
+                continue;
+            }
 
             int value;
             try {
@@ -125,11 +134,11 @@ public class EvaluationServiceImpl implements EvaluationService {
                 continue;
             }
 
-            Optional<EvaluationCriteria> optionalCriteria = evaluation.getCriteria().stream()
+            Optional<EvaluationCriteria> optionalCriteria = evaluation.get().getCriteria().stream()
                     .filter(c -> c.getId().equals(criteriaId))
                     .findFirst();
 
-            if (!optionalCriteria.isPresent()) {
+            if (optionalCriteria.isEmpty()) {
                 System.err.println("Criteria not found: " + criteriaId);
                 continue;
             }
@@ -140,19 +149,24 @@ public class EvaluationServiceImpl implements EvaluationService {
                     .filter(field -> {
                         String fieldName = field.getName();
                         if (fieldName != null) {
-                            if (fieldName.toLowerCase().contains("less than")) {
-                                int limit = Integer.parseInt(fieldName.replaceAll("[^0-9]", ""));
-                                return value < limit;
-                            } else if (fieldName.toLowerCase().contains("greater than")) {
-                                int limit = Integer.parseInt(fieldName.replaceAll("[^0-9]", ""));
-                                return value > limit;
-                            } else if (fieldName.toLowerCase().contains("between")) {
-                                String[] limits = fieldName.toLowerCase().replaceAll("[^0-9 ]", "").trim().split("\\s+");
-                                if (limits.length == 2) {
-                                    int lowerLimit = Integer.parseInt(limits[0].trim());
-                                    int upperLimit = Integer.parseInt(limits[1].trim());
-                                    return value >= lowerLimit && value <= upperLimit;
+                            try {
+                                if (fieldName.toLowerCase().contains("less than")) {
+                                    int limit = Integer.parseInt(fieldName.replaceAll("[^0-9]", ""));
+                                    return value < limit;
+                                } else if (fieldName.toLowerCase().contains("greater than")) {
+                                    int limit = Integer.parseInt(fieldName.replaceAll("[^0-9]", ""));
+                                    return value > limit;
+                                } else if (fieldName.toLowerCase().contains("between")) {
+                                    String[] limits = fieldName.toLowerCase().replaceAll("[^0-9 ]", "").trim().split("\\s+");
+                                    if (limits.length == 2) {
+                                        int lowerLimit = Integer.parseInt(limits[0].trim());
+                                        int upperLimit = Integer.parseInt(limits[1].trim());
+                                        return value >= lowerLimit && value <= upperLimit;
+                                    }
                                 }
+                            } catch (NumberFormatException e) {
+                                System.err.println("Invalid number format in field name: " + fieldName);
+                                return false;
                             }
                         }
                         return false;
