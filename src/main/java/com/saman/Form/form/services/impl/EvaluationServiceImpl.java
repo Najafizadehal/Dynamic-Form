@@ -3,6 +3,8 @@ package com.saman.Form.form.services.impl;
 import com.saman.Form.form.models.Entity.Evaluation;
 import com.saman.Form.form.models.Entity.EvaluationCriteria;
 import com.saman.Form.form.models.Entity.EvaluationField;
+import com.saman.Form.form.models.request.CriteriaInput;
+import com.saman.Form.form.models.response.JsonResponseEvaluate;
 import com.saman.Form.form.repository.EvaluationRepository;
 import com.saman.Form.form.services.EvaluationService;
 import com.saman.Form.shared.FormException;
@@ -10,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -107,7 +110,57 @@ public class EvaluationServiceImpl implements EvaluationService {
         return criteriaScores;
     }
 
+    @Override
+    public List<JsonResponseEvaluate> evaluateInputs(Long evaluationId, List<CriteriaInput> criteriaInputs) {
+        Evaluation evaluation = evaluationRepository.findById(evaluationId)
+                .orElseThrow(() -> new FormException("Evaluation not found", HttpStatus.NOT_FOUND));
 
+        List<JsonResponseEvaluate> jsonResponseEvaluates = new ArrayList<>();
+
+        for (CriteriaInput criteriaInput : criteriaInputs) {
+            Long criteriaId = Long.parseLong(criteriaInput.getCriteriaId());
+            int value = criteriaInput.getValue();
+
+            EvaluationCriteria criteria = evaluation.getCriteria().stream()
+                    .filter(c -> c.getId().equals(criteriaId))
+                    .findFirst()
+                    .orElseThrow(() -> new FormException("Criteria not found: " + criteriaId, HttpStatus.NOT_FOUND));
+
+            int highestScore = criteria.getFields().stream()
+                    .filter(field -> {
+                        String fieldName = field.getName();
+                        if (fieldName != null) {
+                            if (fieldName.toLowerCase().contains("less than")) {
+                                int limit = Integer.parseInt(fieldName.replaceAll("[^0-9]", ""));
+                                return value < limit;
+                            } else if (fieldName.toLowerCase().contains("greater than")) {
+                                int limit = Integer.parseInt(fieldName.replaceAll("[^0-9]", ""));
+                                return value > limit;
+                            } else if (fieldName.toLowerCase().contains("between")) {
+                                String[] limits = fieldName.toLowerCase().replaceAll("[^0-9 ]", "").trim().split("\\s+");
+                                if (limits.length == 2) {
+                                    int lowerLimit = Integer.parseInt(limits[0].trim());
+                                    int upperLimit = Integer.parseInt(limits[1].trim());
+                                    return value >= lowerLimit && value <= upperLimit;
+                                }
+                            }
+                        }
+                        return false;
+                    })
+                    .mapToInt(EvaluationField::getScore)
+                    .max()
+                    .orElse(0);
+
+            JsonResponseEvaluate jsonResponseEvaluate = new JsonResponseEvaluate();
+            jsonResponseEvaluate.setCriteriaId(criteriaInput.getCriteriaId());
+            jsonResponseEvaluate.setValue(value);
+            jsonResponseEvaluate.setRate(highestScore);
+
+            jsonResponseEvaluates.add(jsonResponseEvaluate);
+        }
+
+        return jsonResponseEvaluates;
+    }
 
 
 }

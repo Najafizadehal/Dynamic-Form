@@ -4,6 +4,8 @@ import com.saman.Form.form.models.Entity.Evaluation;
 import com.saman.Form.form.models.Entity.EvaluationCriteria;
 import com.saman.Form.form.models.Entity.EvaluationField;
 import com.saman.Form.form.models.request.*;
+import com.saman.Form.form.models.response.JsonResponseEvaluate;
+import com.saman.Form.form.models.response.EvaluationResponse;
 import com.saman.Form.form.repository.EvaluationCriteriaRepository;
 import com.saman.Form.form.services.EvaluationService;
 import org.slf4j.Logger;
@@ -58,5 +60,10 @@ public class EvaluateController {
         EvaluationResponse response = new EvaluationResponse();
         response.setCriteriaScores(scores);
         return ResponseEntity.ok(response);
+    }
+    @PostMapping("/{evaluationId}/evaluate1")
+    public ResponseEntity<List<JsonResponseEvaluate>> evaluateInputs(@PathVariable Long evaluationId, @RequestBody List<CriteriaInput> request) {
+        List<JsonResponseEvaluate> scores = evaluationService.evaluateInputs(evaluationId, request);
+        return ResponseEntity.ok(scores);
     }
 }

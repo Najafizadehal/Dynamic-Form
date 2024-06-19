@@ -1,4 +1,4 @@
-package com.saman.Form.form.models.request;
+package com.saman.Form.form.models.response;
 
 import lombok.Data;
 

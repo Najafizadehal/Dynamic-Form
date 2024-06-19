@@ -3,6 +3,8 @@ package com.saman.Form.form.services;
 import com.saman.Form.form.models.Entity.Evaluation;
 import com.saman.Form.form.models.Entity.EvaluationCriteria;
 import com.saman.Form.form.models.Entity.EvaluationField;
+import com.saman.Form.form.models.request.CriteriaInput;
+import com.saman.Form.form.models.response.JsonResponseEvaluate;
 
 import java.util.List;
 import java.util.Map;
@@ -14,4 +16,5 @@ public interface EvaluationService {
     EvaluationField addFieldToCriteria(Long evaluationId, Long criteriaId, String fieldName, int score);
     List<Evaluation> getAllEvaluations();
     Map<String, Map<String, Integer>> evaluateInputs(Long evaluationId, Map<String, Map<String, Integer>> criteriaInputs);
+    List<JsonResponseEvaluate> evaluateInputs(Long evaluationId, List<CriteriaInput> criteriaInputs);
 }
